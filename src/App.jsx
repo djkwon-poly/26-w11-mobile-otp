@@ -1,122 +1,84 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useCallback } from 'react';
+import { ServerPanel } from './components/ServerPanel';
+import { ClientPanel } from './components/ClientPanel';
+import { generateSecretKey } from './utils/totp';
+import { Shield, Lock, Radio } from 'lucide-react';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  // 앱 진입 시 CSPRNG 기반 비밀 키 자동 생성
+  const [secret, setSecret] = useState(() => generateSecretKey());
+  const [issuer, setIssuer] = useState('PolytechSec');
+  const [account, setAccount] = useState('student@polytech.ac.kr');
+  const [allowTimeDrift, setAllowTimeDrift] = useState(true);
+  const [currentClientOtp, setCurrentClientOtp] = useState('');
+
+  // 새 비밀 키 생성 핸들러
+  const handleRegenerateSecret = useCallback(() => {
+    const newKey = generateSecretKey();
+    setSecret(newKey);
+  }, []);
+
+  const handleOtpGenerated = useCallback((otp) => {
+    setCurrentClientOtp(otp);
+  }, []);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="studio-container">
+      {/* 글로벌 상단 헤더 */}
+      <header className="studio-header">
+        <div className="header-top">
+          <div className="header-badge-list">
+            <span className="badge badge-accent">
+              <Shield size={13} /> RFC 6238 Standard
+            </span>
+            <span className="badge badge-success">
+              <Lock size={13} /> Zero-Transmission
+            </span>
+            <span className="badge badge-info">
+              <Radio size={13} /> Web Crypto CSPRNG
+            </span>
+          </div>
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        <h1 className="studio-title">Zero-Transmission TOTP 체험 스튜디오</h1>
+        <p className="studio-description">
+          단일 화면에서 <strong>[서비스 서버(QR 발급·검증)]</strong>와 <strong>[인증기 앱(실시간 6자리 OTP)]</strong>을 나란히 비교하고,
+          스마트폰 Google/MS Authenticator와 100% 실시간 동기화를 테스트합니다.
+        </p>
+      </header>
 
-      <div className="ticks"></div>
+      {/* 좌우 2분할 스튜디오 메인 그리드 */}
+      <main className="studio-main-grid">
+        {/* [좌측] 서비스 서버 패널 */}
+        <ServerPanel
+          secret={secret}
+          onRegenerateSecret={handleRegenerateSecret}
+          issuer={issuer}
+          setIssuer={setIssuer}
+          account={account}
+          setAccount={setAccount}
+          allowTimeDrift={allowTimeDrift}
+          setAllowTimeDrift={setAllowTimeDrift}
+          currentClientOtp={currentClientOtp}
+        />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {/* [우측] 사용자 인증기 시뮬레이터 패널 */}
+        <ClientPanel
+          secret={secret}
+          issuer={issuer}
+          account={account}
+          onOtpGenerated={handleOtpGenerated}
+        />
+      </main>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+      {/* 푸터 */}
+      <footer className="studio-footer">
+        <p>
+          모든 HMAC-SHA1 연산 및 비밀 키 생성은 브라우저 내장 <code>Web Crypto API</code>를 통해 기기 내부에서만 수행됩니다. (네트워크 요청 0건)
+        </p>
+      </footer>
+    </div>
+  );
 }
 
-export default App
+export default App;
