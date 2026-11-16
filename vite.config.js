@@ -5,4 +5,10 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   base: './', // Netlify 및 GitHub Pages 배포 경로 호환
   plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+  },
+  preview: {
+    host: '0.0.0.0',
+  },
 })
