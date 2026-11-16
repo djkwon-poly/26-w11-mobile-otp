@@ -71,6 +71,6 @@
 
 ## 🔗 실행 및 배포 링크
 
+* **Netlify 배포 URL:** [https://ornate-semolina-9381e1.netlify.app/](https://ornate-semolina-9381e1.netlify.app/)
+* **GitHub Pages 배포 URL:** [https://djkwon-poly.github.io/26-w11-mobile-otp/](https://djkwon-poly.github.io/26-w11-mobile-otp/)
 * **로컬 실행:** `npm run dev` (기본 포트 `http://localhost:5174/`)
-* **Netlify 배포 URL:** *(배포 후 링크 추가 예정)*
-* **GitHub Pages 배포 URL:** *(배포 후 링크 추가 예정)*
